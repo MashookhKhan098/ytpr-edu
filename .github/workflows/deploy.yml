@@ -30,8 +30,8 @@ jobs:
             cd /home/deployer/nextjs-apps/ytpr-edu
 
             echo "🔄 Pulling latest code from GitHub..."
-            git fetch origin main
-            git reset --hard origin/main
+            git fetch origin master
+            git reset --hard origin/master
 
             echo "🐳 Rebuilding and restarting containers with docker-compose..."
             docker compose down
