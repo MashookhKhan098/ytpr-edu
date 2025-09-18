@@ -1,4 +1,4 @@
-name: Deploy to VPS (Docker Compose)
+name: Deploy to VPS -1(Docker Compose)
 
 on:
   push:
