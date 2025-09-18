@@ -3,14 +3,14 @@ name: Deploy to VPS (Docker Compose)
 on:
   push:
     branches:
-      - main   # change to your default branch (or keep as 'master' if that's correct)
+      - main   # change to your default branch if needed
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout code (only for context, not actually used in deployment)
+      # 1️⃣ Checkout code (for commit info, not used directly for build)
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -23,7 +23,7 @@ jobs:
       # 3️⃣ SSH into VPS and deploy using docker-compose
       - name: Deploy via Docker Compose
         env:
-          BRANCH_NAME: ${{ github.ref_name }}   # <-- Auto-detect branch name
+          BRANCH_NAME: ${{ github.ref_name }}   # Auto-detect branch name
         run: |
           echo "🚀 Deploying branch: $BRANCH_NAME"
 
@@ -33,12 +33,18 @@ jobs:
             echo "📂 Moving to project folder..."
             cd /home/deployer/nextjs-apps/ytpr-edu
 
+            echo "🔄 Configuring Git safe directory..."
+            git config --global --add safe.directory /home/deployer/nextjs-apps/ytpr-edu
+
             echo "🔄 Pulling latest code from GitHub..."
             git fetch origin $BRANCH_NAME
             git reset --hard origin/$BRANCH_NAME
 
+            echo "🧹 Cleaning up old containers and networks..."
+            docker compose down --remove-orphans || true
+            docker system prune -f || true
+
             echo "🐳 Rebuilding and restarting containers with docker-compose..."
-            docker compose down
             docker compose up -d --build
 
             echo "✅ Deployment completed successfully!"
